@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator ni Mark Boutan - Pro Edition</title>
+    <style>
+        :root {
+            --primary-pink: #fce4ec;
+            --dark-pink: #ad1457;
+            --accent-pink: #f06292;
+            --button-hover: #f48fb1;
+            --shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            background-color: var(--primary-pink); 
+            margin: 0; 
+        }
+
+        .main-wrapper {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .calc-container { 
+            background: #fff; 
+            padding: 25px; 
+            border-radius: 25px; 
+            box-shadow: var(--shadow); 
+            width: 350px; 
+            position: relative;
+        }
+        
+        .header-title { 
+            text-align: center; 
+            color: var(--dark-pink); 
+            font-weight: 900; 
+            margin-bottom: 20px; 
+            font-size: 1.4rem; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        #display-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #display { 
+            width: 100%; 
+            height: 80px; 
+            font-size: 2rem; 
+            text-align: right; 
+            padding: 15px; 
+            box-sizing: border-box; 
+            border: 3px solid #ff80ab; 
+            border-radius: 15px; 
+            background: #fff5f8; 
+            color: var(--dark-pink);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            outline: none;
+        }
+
+        #formula-display {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            font-size: 0.8rem;
+            color: #f48fb1;
+        }
+
+        .buttons { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px; 
+        }
+
+        button { 
+            padding: 18px 5px; 
+            font-size: 1.1rem; 
+            border: none; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            background: #f8bbd0; 
+            color: #880e4f; 
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            font-weight: 700; 
+        }
+
+        button:hover { 
+            background: var(--button-hover); 
+            transform: translateY(-3px); 
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+
+        button:active { transform: scale(0.9); }
+        
+        .operator { background: var(--accent-pink); color: white; }
+        .operator:hover { background: #ec407a; }
+        
+        .equals { 
+            background: #d81b60; 
+            color: white; 
+            grid-column: span 2; 
+            font-size: 1.5rem;
+        }
+        .equals:hover { background: #c2185b; }
+        
+        .clear { background: #9e9e9e; color: white; }
+        .delete { background: #ffb100; color: white; }
+        .sci-btn { background: #fce4ec; border: 1px solid #f06292; font-size: 0.9rem; color: #ad1457; }
+
+        /* History Panel */
+        .history-container {
+            background: #fff;
+            width: 250px;
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            max-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-title {
+            color: var(--dark-pink);
+            font-weight: bold;
+            border-bottom: 2px solid var(--primary-pink);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        #history-list {
+            list-style: none;
+            padding: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .history-item {
+            font-size: 0.9rem;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .history-item:hover { background: #fff5f8; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); border-color: #d81b60; }
+            100% { transform: scale(1); }
+        }
+
+        .pulse-anim { animation: pulse 0.3s ease-in-out; }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="calc-container" id="calcMain">
+        <div class="header-title">CALCULATOR NI MARK BOUTAN</div>
+        
+        <div id="display-container">
+            <div id="formula-display"></div>
+            <input type="text" id="display" readonly placeholder="0">
+        </div>
+
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">AC</button>
+            <button class="delete" onclick="deleteLast()">Del</button>
+            <button class="sci-btn" onclick="scientific('Math.sqrt')">√</button>
+            <button class="operator" onclick="appendToDisplay('/')">÷</button>
+            
+            <button onclick="appendToDisplay('7')">7</button>
+            <button onclick="appendToDisplay('8')">8</button>
+            <button onclick="appendToDisplay('9')">9</button>
+            <button class="operator" onclick="appendToDisplay('*')">×</button>
+            
+            <button onclick="appendToDisplay('4')">4</button>
+            <button onclick="appendToDisplay('5')">5</button>
+            <button onclick="appendToDisplay('6')">6</button>
+            <button class="operator" onclick="appendToDisplay('-')">−</button>
+            
+            <button onclick="appendToDisplay('1')">1</button>
+            <button onclick="appendToDisplay('2')">2</button>
+            <button onclick="appendToDisplay('3')">3</button>
+            <button class="operator" onclick="appendToDisplay('+')">+</button>
+            
+            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+            <button class="sci-btn" onclick="scientific('Math.sin')">sin</button>
+            <button class="sci-btn" onclick="scientific('Math.cos')">cos</button>
+
+            <button onclick="appendToDisplay('(')">(</button>
+            <button onclick="appendToDisplay(')')">)</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <div class="history-container">
+        <div class="history-title">Recent Calculations</div>
+        <ul id="history-list">
+            <li style="color: #ccc; font-style: italic;">No history yet...</li>
+        </ul>
+        <button onclick="clearHistory()" style="background: none; color: #999; font-size: 0.7rem; margin-top: 10px;">Clear History</button>
+    </div>
+</div>
+
+<script>
+    const display = document.getElementById('display');
+    const formulaDisplay = document.getElementById('formula-display');
+    const historyList = document.getElementById('history-list');
+    const calcMain = document.getElementById('calcMain');
+
+    // Logic to handle user input
+    function appendToDisplay(input) {
+        // Reset if message is shown
+        if (/[a-zA-Z]/.test(display.value) || display.value === "Error") {
+            display.value = "";
+        }
+        
+        display.value += input;
+        playClickEffect();
+    }
+
+    function clearDisplay() {
+        display.value = "";
+        formulaDisplay.innerText = "";
+    }
+
+    function deleteLast() {
+        display.value = display.value.slice(0, -1);
+    }
+
+    function scientific(func) {
+        if(display.value === "") return;
+        try {
+            let val = eval(display.value);
+            // Convert to radians for trig functions
+            if(func.includes('sin') || func.includes('cos')) {
+                val = val * (Math.PI / 180);
+            }
+            let result = eval(`${func}(${val})`);
+            display.value = Number(result.toFixed(4));
+        } catch {
+            display.value = "Error";
+        }
+    }
+
+    function calculate() {
+        const currentVal = display.value;
+        if (!currentVal) return;
+
+        // --- SECRET EASTER EGGS ---
+        const secrets = {
+            "1+1": "miss na kita",
+            "5+5": "balik kana please",
+            "143": "I Love You",
+            "0+0": "Walang tayo",
+            "911": "Emergency? Miss you!",
+            "123": "Gusto kita",
+            "1+4+3": "I Love You Forever"
+        };
+
+        if (secrets[currentVal]) {
+            display.value = secrets[currentVal];
+            addToHistory(currentVal, secrets[currentVal]);
+            return;
+        }
+
+        try {
+            // Safety Check: replace scientific icons if used
+            let computation = currentVal.replace('×', '*').replace('÷', '/');
+            let result = eval(computation);
+
+            if (result === Infinity || isNaN(result)) {
+                display.value = "Error";
+            } else {
+                let finalResult = Number(result.toFixed(8));
+                formulaDisplay.innerText = currentVal + " =";
+                addToHistory(currentVal, finalResult);
+                display.value = finalResult;
+                
+                // Add pulse animation
+                calcMain.classList.add('pulse-anim');
+                setTimeout(() => calcMain.classList.remove('pulse-anim'), 300);
+            }
+        } catch (error) {
+            display.value = "Error";
+        }
+    }
+
+    function addToHistory(formula, result) {
+        if (historyList.innerHTML.includes("No history yet")) {
+            historyList.innerHTML = "";
+        }
+        const li = document.createElement('li');
+        li.className = "history-item";
+        li.innerText = `${formula} = ${result}`;
+        li.onclick = () => {
+            display.value = result;
+        };
+        historyList.prepend(li);
+    }
+
+    function clearHistory() {
+        historyList.innerHTML = '<li style="color: #ccc; font-style: italic;">No history yet...</li>';
+    }
+
+    function playClickEffect() {
+        // You could add a small sound file here if desired
+        // new Audio('click.mp3').play();
+    }
+
+    // Support for physical keyboard
+    document.addEventListener('keydown', (e) => {
+        const key = e.key;
+        if (!isNaN(key)) appendToDisplay(key);
+        if (['+', '-', '*', '/', '(', ')', '.'].includes(key)) appendToDisplay(key);
+        if (key === 'Enter') calculate();
+        if (key === 'Backspace') deleteLast();
+        if (key === 'Escape') clearDisplay();
+    });
+</script>
+
+</body>
+</html>
